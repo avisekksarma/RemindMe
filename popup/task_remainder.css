@@ -1,9 +1,11 @@
-html,body{
-    width:300px;
+html,
+body {
+    width: 300px;
     height: 400px;
 }
-#main-page{
-    border:1px solid black;
+
+#main-page {
+    border: 1px solid black;
     height: 95vh;
     width: 100%;
     display: flex;
@@ -11,37 +13,65 @@ html,body{
     justify-content: space-evenly;
     align-items: center;
 }
-h3{
+
+h3 {
     text-align: center;
 }
-#task{
-    width:100%;
-    height:50px;
-}
-#time{
-    width:100%;
-    height:20px;
-}
-.hidden{
-    display: none;
-}
-#final-submit{
-    color:cyan;
-    padding:10px;
-    border-radius: 2rem;
+
+#task {
+    width: 100%;
+    height: 50px;
 }
 
-#click-see-rem,#click-make-new-rem{
+#time {
+    width: 100%;
+    height: 20px;
+}
+
+.hidden {
+    display: none;
+}
+.each-rem{
+    border:2px solid red;
+}
+#final-submit {
+    color: cyan;
+    padding: 10px;
+    border-radius: 2rem;
+    margin-top:10px;
+}
+
+#heading {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+#heading>img {
+    flex: 1;
+    display: none;
+    /* border: 1px solid black; */
+}
+
+#heading>h3 {
+    flex: 4;
+    /* border: 1px solid black; */
+}
+
+#click-see-rem,
+#click-make-new-rem {
     padding: 1rem;
     border-radius: 1rem;
     background-color: beige;
-    color:black;
+    color: black;
     font-size: 20px;
     text-align: center;
     transition-duration: 0.6s;
-    margin:1rem;
+    margin: 1rem;
 }
-#click-see-rem:hover,#click-make-new-rem:hover{
+
+#click-see-rem:hover,
+#click-make-new-rem:hover {
     background-color: greenyellow;
-    color:white
+    color: white
 }
