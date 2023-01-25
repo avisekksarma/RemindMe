@@ -1,10 +1,17 @@
 html,body{
-    width:100px;
+    width:200px;
 }
 
 #task{
     width:100%;
     height:50px;
+}
+#time{
+    width:100%;
+    height:20px;
+}
+.hidden{
+    display: none;
 }
 #final-submit{
     color:cyan;
