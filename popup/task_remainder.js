@@ -39,33 +39,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function handleDeleteRem(x) {
-        browser.storage.local.get(null)
-            .then(obj => {
-                console.log('first one')
-                console.log(obj)
-            })
-        console.log(`remid=${x}`)
-        // browser.storage.local.set({a:10})
-        // browser.storage.local.get(null)
-        // .then(obj=>console.log(obj))
-        // TODO: find better way to do promise inside a promise i.e. child promise thing.
-        browser.storage.local.get(null)
-            .then(obj => {
-                delete obj[x]
-                console.log('second one')
-                console.log(obj)
-                const { count, ...newObj } = obj;
-                console.log(newObj)
-                browser.storage.local.clear()
-                .then(()=>{
-                    browser.storage.local.set({...newObj,count:obj.count-1})
-                    .then(()=>{
-                        browser.storage.local.get(null)
-                            .then(handleSeeRems)
-                    })
-                })
-            })
+    async function handleDeleteRem(x) {
+        const obj = await browser.storage.local.get(null)
+        // console.log('First one:')
+        // console.log(obj)
+        // console.log(`remid=${x}`)
+        delete obj[x]
+        // console.log('second one')
+        // console.log(obj)
+        const { count, ...newObj } = obj;
+        // console.log(newObj)
+        await browser.storage.local.clear()
+        await browser.storage.local.set({ ...newObj, count: obj.count - 1 })
+        const updatedObj = await browser.storage.local.get(null)
+        // console.log('updated final one')
+        // console.log(updatedObj)
+        handleSeeRems(updatedObj)
     }
 
     function handleSeeRems(obj) {
