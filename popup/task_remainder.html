@@ -19,8 +19,11 @@
     <div id="popup-content">
 
       <textarea class="input" id="task"></textarea>
-      <label for="time"><b>Time in seconds</b></label>
-      <input type="text" id="time" size="30">
+      <label for="rem-time"><b>Choose Date and Time</b></label>
+
+      <input type="datetime-local" id="time" name="rem-time" value="2022-06-12T19:30"> 
+      <!-- <label for="time"><b>Time in seconds</b></label> -->
+      <!-- <input type="text" id="time" size="30"> -->
       <button id="final-submit">Remind</button>
     </div>
     <div id="error-content" class="hidden">
@@ -29,7 +32,7 @@
     </div>
   </div>
   <div id="see-rem">
-   <h3>Remainders:</h3> 
+    <h3>Remainders:</h3>
   </div>
   <script src="task_remainder.js"></script>
 </body>

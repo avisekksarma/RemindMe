@@ -9,18 +9,27 @@ document.addEventListener('DOMContentLoaded', () => {
     let backBtn = document.getElementById('image-back')
     backBtn.style.display = 'none'
 
+    const convTo = date => new Date(date.getTime() + new Date().getTimezoneOffset() * -60 * 1000).toISOString().slice(0, 19)
 
 
     function listenForClicks() {
         document.addEventListener("click", (e) => {
             if (e.target.id === "final-submit") {
-                const task = document.getElementById('task').value
-                const timeset = document.getElementById('time').value
-                if (task == "") {
+                let task = document.getElementById('task')
+                let timeset = document.getElementById('time')
+                console.log('Time set is: ')
+                console.log(timeset.value)
+                if (task.value == "") {
                     console.log('empty');
                 } else {
-                    console.log(`Typed task=${task} at ${timeset}`);
-                    handleAddingRem(task, timeset);
+                    console.log(`Typed task=${task.value}`);
+                    console.log(`Typed at time:  ${timeset.value}`);
+                    const prom = handleAddingRem(task.value, timeset.value);
+                    prom.then(() => {
+                        task.value = ""
+                        let newTime = convTo(new Date())
+                        timeset.value = newTime
+                    })
                 }
 
             } else if (e.target.id === "click-see-rem") {
@@ -30,6 +39,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             else if (e.target.id === "click-make-new-rem") {
                 setDisplay('none', 'block', 'none', 'block');
+
+                const val = convTo(new Date())
+                const timePicker = document.getElementById('time')
+                timePicker.value = val;
                 console.log('click make new rem clicked ')
             } else if (e.target.id === 'image-back') {
                 setDisplay('block', 'none', 'none', 'none');
@@ -41,19 +54,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function handleDeleteRem(x) {
         const obj = await browser.storage.local.get(null)
-        // console.log('First one:')
-        // console.log(obj)
-        // console.log(`remid=${x}`)
         delete obj[x]
-        // console.log('second one')
-        // console.log(obj)
         const { count, ...newObj } = obj;
-        // console.log(newObj)
         await browser.storage.local.clear()
         await browser.storage.local.set({ ...newObj, count: obj.count - 1 })
         const updatedObj = await browser.storage.local.get(null)
-        // console.log('updated final one')
-        // console.log(updatedObj)
         handleSeeRems(updatedObj)
     }
 
@@ -76,9 +81,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 delBtn.setAttribute('data-remid', prop)
                 delBtn.innerHTML = 'Delete'
                 // btn end
+
                 const pTime = document.createElement('p')
                 pTask.innerHTML = `<b>Task: </b> ${obj[prop]['rem']}`;
-                pTime.innerHTML = `<b>Time: </b> ${obj[prop]['time']}`
+                pTime.innerHTML = `<b>Time: </b> ${obj[prop]['time'].toDateString()} (${obj[prop]['time'].toLocaleTimeString()})`
                 i.appendChild(pTask)
                 i.appendChild(pTime)
                 i.appendChild(delBtn)
@@ -87,23 +93,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         seeRem.appendChild(outerDiv)
     }
-    function handleAddingRem(task, timeset) {
-        browser.storage.local.get(null)
-            .then(obj => {
-                let x = { rem: task, time: timeset }
-                if (!obj.hasOwnProperty('count')) {
+    async function handleAddingRem(task, timeset) {
+        let obj = await browser.storage.local.get(null)
+        let x = { rem: task, time: new Date(timeset) }
+        if (!obj.hasOwnProperty('count')) {
 
-                    browser.storage.local.set({ count: 1, id: 2, 1: x })
-                    console.log('no count')
-                } else {
-                    const { count, id, ...newObj } = obj;
-                    let newId = obj.id;
-                    browser.storage.local.clear()
-                    browser.storage.local.set({ ...newObj, [newId]: x, count: obj.count + 1, id: obj.id + 1 })
-                    console.log('has count')
-                }
-            }
-            ).catch(err => console.log(err))
+            await browser.storage.local.set({ count: 1, id: 2, 1: x })
+        } else {
+            const { count, id, ...newObj } = obj;
+            let newId = obj.id;
+            await browser.storage.local.clear()
+            await browser.storage.local.set({ ...newObj, [newId]: x, count: obj.count + 1, id: obj.id + 1 })
+        }
+
     }
 
 
