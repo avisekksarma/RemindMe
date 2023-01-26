@@ -105,6 +105,24 @@ document.addEventListener('DOMContentLoaded', () => {
             await browser.storage.local.clear()
             await browser.storage.local.set({ ...newObj, [newId]: x, count: obj.count + 1, id: obj.id + 1 })
         }
+        // for notification part
+        //TODO: a. handle past date, throwing error (b). work on repeat 
+        // remainder
+        let currTime = new Date()
+        let timeDiff = x.time.getTime() - currTime.getTime()
+        console.log(`Time in ms: ${timeDiff}`)
+        const ID = setTimeout(function(val){
+            console.log('Passed time!!!')
+            console.log(val)
+            browser.notifications.create(
+                {
+                    type: 'basic',
+                    title: 'Remainder!!!',
+                    message: val
+                }
+            )
+        }, timeDiff, x.rem);
+        
 
     }
 
