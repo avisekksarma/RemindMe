@@ -33,9 +33,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('click make new rem clicked ')
             } else if (e.target.id === 'image-back') {
                 setDisplay('block', 'none', 'none', 'none');
+            } else if (e.target.className === "delete-rem-btn") {
+                handleDeleteRem(e.target.dataset.remid);
             }
         });
     }
+
+    function handleDeleteRem(x) {
+        browser.storage.local.get(null)
+            .then(obj => {
+                console.log('first one')
+                console.log(obj)
+            })
+        console.log(`remid=${x}`)
+        // browser.storage.local.set({a:10})
+        // browser.storage.local.get(null)
+        // .then(obj=>console.log(obj))
+        // TODO: find better way to do promise inside a promise i.e. child promise thing.
+        browser.storage.local.get(null)
+            .then(obj => {
+                delete obj[x]
+                console.log('second one')
+                console.log(obj)
+                const { count, ...newObj } = obj;
+                console.log(newObj)
+                browser.storage.local.clear()
+                .then(()=>{
+                    browser.storage.local.set({...newObj,count:obj.count-1})
+                    .then(()=>{
+                        browser.storage.local.get(null)
+                            .then(handleSeeRems)
+                    })
+                })
+            })
+    }
+
     function handleSeeRems(obj) {
         let adiv = document.querySelector('.outer-div-rems')
         if (adiv !== null) {
@@ -49,11 +81,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 const i = document.createElement('div')
                 i.className = 'each-rem'
                 const pTask = document.createElement('p')
+                // btn start
+                const delBtn = document.createElement('button')
+                delBtn.className = 'delete-rem-btn'
+                delBtn.setAttribute('data-remid', prop)
+                delBtn.innerHTML = 'Delete'
+                // btn end
                 const pTime = document.createElement('p')
                 pTask.innerHTML = `<b>Task: </b> ${obj[prop]['rem']}`;
                 pTime.innerHTML = `<b>Time: </b> ${obj[prop]['time']}`
                 i.appendChild(pTask)
                 i.appendChild(pTime)
+                i.appendChild(delBtn)
                 outerDiv.appendChild(i)
             }
         }
@@ -70,6 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     const { count, id, ...newObj } = obj;
                     let newId = obj.id;
+                    browser.storage.local.clear()
                     browser.storage.local.set({ ...newObj, [newId]: x, count: obj.count + 1, id: obj.id + 1 })
                     console.log('has count')
                 }
