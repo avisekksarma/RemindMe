@@ -70,7 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const outerDiv = document.createElement('div')
         outerDiv.className = 'outer-div-rems'
         const seeRem = document.querySelector('#see-rem')
-        for (const prop in obj) {
+        let keys = Object.keys(obj).reverse()
+        for (const prop of keys) {
             if (prop === 'count' || prop === 'id') { } else {
                 const i = document.createElement('div')
                 i.className = 'each-rem'
@@ -122,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             )
         }, timeDiff, x.rem);
-        
+
 
     }
 

@@ -17,4 +17,5 @@
         "default_title": "RemindMe",
         "default_popup": "popup/task_remainder.html"
     }
+    
 }
