@@ -9,6 +9,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let backBtn = document.getElementById('image-back')
     backBtn.style.display = 'none'
 
+    let editSubmit = document.getElementById('edit-done')
+    editSubmit.style.display = 'none'
+
+    let remindSubmit = document.getElementById('final-submit')
+
     const convTo = date => new Date(date.getTime() + new Date().getTimezoneOffset() * -60 * 1000).toISOString().slice(0, 19)
 
 
@@ -39,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             else if (e.target.id === "click-make-new-rem") {
                 setDisplay('none', 'block', 'none', 'block');
-
+                remindSubmit.style.display = 'block'
                 const val = convTo(new Date())
                 const timePicker = document.getElementById('time')
                 timePicker.value = val;
@@ -48,10 +53,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 setDisplay('block', 'none', 'none', 'none');
             } else if (e.target.className === "delete-rem-btn") {
                 handleDeleteRem(e.target.dataset.remid);
+            } else if (e.target.className === "edit-rem-btn") {
+                setDisplay('none', 'block', 'none', 'block');
+                editSubmit.style.display = 'block';
+                remindSubmit.style.display = 'none';
+                const idOfEditTask = e.target.dataset.remid;
+                let task = document.getElementById('task')
+                let timePicker = document.getElementById('time')
+                browser.storage.local.get(null)
+                    .then((obj) => {
+                        task.value = obj[idOfEditTask].rem;
+                        timePicker.value = convTo(obj[idOfEditTask].time)
+                    })
             }
+
         });
     }
-
+    async function handleEditRem(x) {
+        await browser.storaetg
+    }
     async function handleDeleteRem(x) {
         const obj = await browser.storage.local.get(null)
         delete obj[x]
@@ -76,18 +96,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 const i = document.createElement('div')
                 i.className = 'each-rem'
                 const pTask = document.createElement('p')
-                // btn start
+                // del btn start
                 const delBtn = document.createElement('button')
                 delBtn.className = 'delete-rem-btn'
                 delBtn.setAttribute('data-remid', prop)
                 delBtn.innerHTML = 'Delete'
                 // btn end
-
+                // edit button start    
+                const editBtn = document.createElement('button')
+                editBtn.className = 'edit-rem-btn'
+                editBtn.setAttribute('data-remid', prop)
+                editBtn.innerHTML = 'Edit'
+                // edit button end
                 const pTime = document.createElement('p')
                 pTask.innerHTML = `<b>Task: </b> ${obj[prop]['rem']}`;
                 pTime.innerHTML = `<b>Time: </b> ${obj[prop]['time'].toDateString()} (${obj[prop]['time'].toLocaleTimeString()})`
                 i.appendChild(pTask)
                 i.appendChild(pTime)
+                i.appendChild(editBtn)
                 i.appendChild(delBtn)
                 outerDiv.appendChild(i)
             }
@@ -100,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let idX = 0;
         if (!obj.hasOwnProperty('count')) {
             idX = 1;
-            x.id=idX;
+            x.id = idX;
             await browser.storage.local.set({ count: 1, id: 2, 1: x })
         } else {
             const { count, id, ...newObj } = obj;
