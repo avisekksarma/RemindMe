@@ -21,7 +21,7 @@ async function createNotification(task) {
             type: 'basic',
             title: 'Remainder!!!',
             message: task,
-            eventtime: Date.now()+1000*5
+            // eventtime: Date.now()+1000*5
             // buttons: [{
             //     title: 'Close',
             //     iconUrl: 'icons/close-48.png',
@@ -43,6 +43,14 @@ browser.alarms.onAlarm.addListener(async function (alarmInfo) {
     browser.tabs.create({url:taskURL})
 });
 
+browser.runtime.onMessage.addListener(async function(data, sender){
+    if (data.case==='doneBtn'){
+        // handle clicking doneBtn on extension page
+        // i.e. delete that remainder
+        browser.storage.local.remove(data.id)
+        console.log('removed')
+    }
+})
 
 // browser.notifications.onButtonClicked.addListener(function (notifID, buttonIndex) {
 //     console.log('Closed by clicking')

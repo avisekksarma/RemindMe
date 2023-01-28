@@ -7,9 +7,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const snoozeBtn = document.getElementById('snooze');
     const doneBtn = document.getElementById('done');
     doneBtn.addEventListener('click', async function () {
-        const tabs = await browser.tabs.query({ currentWindow: true, active: true })
-        browser.tabs.remove(tabs[0].id);
-        console.log(taskID)
+        let tabs = await browser.tabs.query({ currentWindow: true, active: true })
+        console.log(tabs)
+        await browser.runtime.sendMessage({
+            case:'doneBtn',
+            task: task,
+            id: taskID
+        }).catch(e => console.log(`error: ${e} occured`))
+        // const tabs = await browser.tabs.query({ currentWindow: true, active: true })
+        await browser.tabs.remove(tabs[0].id);
     })
 
 })
