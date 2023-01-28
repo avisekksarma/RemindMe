@@ -100,23 +100,22 @@ document.addEventListener('DOMContentLoaded', () => {
         let idX = 0;
         if (!obj.hasOwnProperty('count')) {
             idX = 1;
+            x.id=idX;
             await browser.storage.local.set({ count: 1, id: 2, 1: x })
         } else {
             const { count, id, ...newObj } = obj;
             let newId = obj.id;
             idX = newId;
             await browser.storage.local.clear()
+            x.id = idX;
             await browser.storage.local.set({ ...newObj, [newId]: x, count: obj.count + 1, id: obj.id + 1 })
         }
         // for notification part
         //TODO: a. handle past date, throwing error (b). work on repeat 
         // remainder
-        // let currTime = new Date()
         let timeSinceEpochMs = x.time.getTime()
-        // console.log(`Time in ms: ${timeDiff}`)
         browser.alarms.create(`${idX}`, {
             when: timeSinceEpochMs,
-            
         })
     }
 
