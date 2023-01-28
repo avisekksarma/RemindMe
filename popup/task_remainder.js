@@ -97,34 +97,27 @@ document.addEventListener('DOMContentLoaded', () => {
     async function handleAddingRem(task, timeset) {
         let obj = await browser.storage.local.get(null)
         let x = { rem: task, time: new Date(timeset) }
+        let idX = 0;
         if (!obj.hasOwnProperty('count')) {
-
+            idX = 1;
             await browser.storage.local.set({ count: 1, id: 2, 1: x })
         } else {
             const { count, id, ...newObj } = obj;
             let newId = obj.id;
+            idX = newId;
             await browser.storage.local.clear()
             await browser.storage.local.set({ ...newObj, [newId]: x, count: obj.count + 1, id: obj.id + 1 })
         }
         // for notification part
         //TODO: a. handle past date, throwing error (b). work on repeat 
         // remainder
-        let currTime = new Date()
-        let timeDiff = x.time.getTime() - currTime.getTime()
-        console.log(`Time in ms: ${timeDiff}`)
-        const ID = setTimeout(function(val){
-            console.log('Passed time!!!')
-            console.log(val)
-            browser.notifications.create(
-                {
-                    type: 'basic',
-                    title: 'Remainder!!!',
-                    message: val
-                }
-            )
-        }, timeDiff, x.rem);
-
-
+        // let currTime = new Date()
+        let timeSinceEpochMs = x.time.getTime()
+        // console.log(`Time in ms: ${timeDiff}`)
+        browser.alarms.create(`${idX}`, {
+            when: timeSinceEpochMs,
+            
+        })
     }
 
 
@@ -136,14 +129,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    function reportExecuteScriptError(error) {
-        document.querySelector("#popup-content").classList.add("hidden");
-        document.querySelector("#error-content").classList.remove("hidden");
-        console.error(`Failed to execute task-remainder content script: ${error.message}`);
-    }
+    // function reportExecuteScriptError(error) {
+    //     document.querySelector("#popup-content").classList.add("hidden");
+    //     document.querySelector("#error-content").classList.remove("hidden");
+    //     console.error(`Failed to execute task-remainder content script: ${error.message}`);
+    // }
+    // browser.tabs
+    //     .executeScript({ file: "/content_scripts/remind.js" })
+    //     .then(listenForClicks)
+    //     .catch(reportExecuteScriptError);
+    listenForClicks()
 
-    browser.tabs
-        .executeScript({ file: "/content_scripts/remind.js" })
-        .then(listenForClicks)
-        .catch(reportExecuteScriptError);
 })
+// ,
+//     "content_scripts": [
+//         {
+//             "matches": [
+//                "<all_urls>" 
+//             ],
+//             "js": [
+//                 "content_scripts/remind.js"
+//             ]
+//         }
+//     ]
+
+
