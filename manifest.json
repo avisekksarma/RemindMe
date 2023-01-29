@@ -4,7 +4,7 @@
     "version": "1.0",
     "description": "An extension to remind task in the set time",
     "icons": {
-        "48": "icons/task-48.png"
+        "96": "icons/remindme_96x96.png"
     },
     "permissions": [
         "alarms",
@@ -14,7 +14,7 @@
         "notifications"
     ],
     "browser_action": {
-        "default_icon": "icons/task-32.png",
+        "default_icon": "icons/airplane_32x32.png",
         "default_title": "RemindMe",
         "default_popup": "popup/task_remainder.html"
     },
