@@ -10,3 +10,7 @@ Very **handy** for anyone to keep tasks aside while working on something.
 
 There may be similar extensions in chrome based browsers but I didn't find much to my need in firefox.
 And yeah, you got to use browser for the developer by the developer.
+
+References:
+1. Icons from:
+<a href="https://www.flaticon.com/free-icons/origami" title="origami icons">Origami icons created by Freepik - Flaticon</a>
