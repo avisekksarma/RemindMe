@@ -47,12 +47,18 @@ browser.runtime.onMessage.addListener(async function (data, sender) {
     if (data.case === 'doneBtn') {
         // handle clicking doneBtn on extension page
         // i.e. delete that remainder
-        browser.storage.local.remove(data.id)
-        console.log('removed')
+        const currObj = await browser.storage.local.get(null);
+        if (currObj.hasOwnProperty(data.id)) {
+            browser.storage.local.remove(data.id)
+            let obj = await browser.storage.local.get(null)
+            const { count, ...newObj } = obj;
+            await browser.storage.local.set({ ...newObj, count: count - 1 })
+            console.log('removed')
+        }
     } else if (data.case === 'snoozeBtn') {
         await browser.alarms.clear(data.id)
         let minutes = 1;
-        let timeSinceEpochMs = Date.now()+minutes*60*1000;
+        let timeSinceEpochMs = Date.now() + minutes * 60 * 1000;
         await browser.alarms.create(`${data.id}`, {
             when: timeSinceEpochMs,
         })
@@ -62,8 +68,9 @@ browser.runtime.onMessage.addListener(async function (data, sender) {
         delete obj[data.id];
         console.log(obj)
         console.log('++++++++')
-        browser.storage.local.set({...obj,[data.id]:{rem:data.task,time:new Date(timeSinceEpochMs),id:data.id}})
-        console.log(obj)
+        await browser.storage.local.set({ ...obj, [data.id]: { rem: data.task, time: new Date(timeSinceEpochMs), id: data.id } })
+        const newObj = await browser.storage.local.get(null)
+        console.log(newObj)
         console.log('++++++++')
     }
 })

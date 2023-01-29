@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function listenForClicks() {
-        document.addEventListener("click", (e) => {
+        document.addEventListener("click", async function (e) {
             let task = document.getElementById('task')
             let timeset = document.getElementById('time')
             if (e.target.id === "final-submit") {
@@ -35,8 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             } else if (e.target.id === "click-see-rem") {
                 setDisplay('none', 'none', 'block', 'block');
-                browser.storage.local.get(null)
-                    .then(handleSeeRems)
+                const obj = await browser.storage.local.get(null)
+                handleSeeRems(obj)
             }
             else if (e.target.id === "click-make-new-rem") {
                 setDisplay('none', 'block', 'none', 'block');
@@ -78,6 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // console.log(obj)
         const { id, ...newObj } = obj;
         const x = { rem: newTask, time: new Date(newTime), id: Number(id) };
+        await browser.storage.local.clear()
         await browser.storage.local.set({ ...newObj, [id]: x, id: Number(id) + 1 })
         const updatedObj = await browser.storage.local.get(null)
         setDisplay('none', 'none', 'block', 'block');
@@ -119,6 +120,16 @@ document.addEventListener('DOMContentLoaded', () => {
         outerDiv.className = 'outer-div-rems'
         const seeRem = document.querySelector('#see-rem')
         let keys = Object.keys(obj).reverse()
+        console.log(keys)
+        console.log(obj)
+        console.log(obj.count)
+        if (keys.length === 0 || obj.count === 0) {
+            const i = document.createElement('p')
+            i.textContent = 'No any remainders set!'
+            outerDiv.appendChild(i)
+            seeRem.appendChild(outerDiv)
+            return
+        }
         for (const prop of keys) {
             if (prop === 'count' || prop === 'id') { } else {
                 const i = document.createElement('div')
@@ -159,6 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!obj.hasOwnProperty('count')) {
             idX = 1;
             x.id = idX;
+            await browser.storage.local.clear()
             await browser.storage.local.set({ count: 1, id: 2, 1: x })
         } else {
             const { count, id, ...newObj } = obj;
