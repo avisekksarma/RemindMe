@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // handling snooze btn:
     // for now snooze 10 minutes
-    snooozeBtn.addEventListener('click', async function () {
+    snoozeBtn.addEventListener('click', async function () {
         let tabs = await browser.tabs.query({ currentWindow: true, active: true })
         // console.log(tabs)
         await browser.runtime.sendMessage({

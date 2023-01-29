@@ -53,9 +53,18 @@ browser.runtime.onMessage.addListener(async function (data, sender) {
         await browser.alarms.clear(data.id)
         let minutes = 1;
         let timeSinceEpochMs = Date.now()+minutes*60*1000;
-        browser.alarms.create(`${data.id}`, {
+        await browser.alarms.create(`${data.id}`, {
             when: timeSinceEpochMs,
         })
+        const obj = await browser.storage.local.get(null)
+        console.log('++++++++')
+        console.log(obj)
+        delete obj[data.id];
+        console.log(obj)
+        console.log('++++++++')
+        browser.storage.local.set({...obj,[data.id]:{rem:data.task,time:new Date(timeSinceEpochMs),id:data.id}})
+        console.log(obj)
+        console.log('++++++++')
     }
 })
 
