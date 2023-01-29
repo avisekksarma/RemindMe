@@ -39,7 +39,7 @@ browser.alarms.onAlarm.addListener(async function (alarmInfo) {
     let ID = obj[alarmInfo.name].id;
     // createnotification returns a promise
     // await createNotification(task);
-    let taskURL = browser.runtime.getURL("task.html") + "?task=" + task + "&id=" + ID;
+    let taskURL = browser.runtime.getURL("task-extension-page/task.html") + "?task=" + task + "&id=" + ID;
     browser.tabs.create({ url: taskURL })
 });
 
@@ -57,7 +57,7 @@ browser.runtime.onMessage.addListener(async function (data, sender) {
         }
     } else if (data.case === 'snoozeBtn') {
         await browser.alarms.clear(data.id)
-        let minutes = 1;
+        let minutes = 10;
         let timeSinceEpochMs = Date.now() + minutes * 60 * 1000;
         await browser.alarms.create(`${data.id}`, {
             when: timeSinceEpochMs,
