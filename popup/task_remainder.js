@@ -19,16 +19,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function listenForClicks() {
         document.addEventListener("click", (e) => {
+            let task = document.getElementById('task')
+            let timeset = document.getElementById('time')
             if (e.target.id === "final-submit") {
-                let task = document.getElementById('task')
-                let timeset = document.getElementById('time')
-                console.log('Time set is: ')
-                console.log(timeset.value)
                 if (task.value == "") {
                     console.log('empty');
                 } else {
-                    console.log(`Typed task=${task.value}`);
-                    console.log(`Typed at time:  ${timeset.value}`);
                     const prom = handleAddingRem(task.value, timeset.value);
                     prom.then(() => {
                         task.value = ""
@@ -46,10 +42,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 setDisplay('none', 'block', 'none', 'block');
                 remindSubmit.style.display = 'block'
                 editSubmit.style.display = 'none'
+                task.value = ""
                 const val = convTo(new Date())
-                const timePicker = document.getElementById('time')
-                timePicker.value = val;
-                console.log('click make new rem clicked ')
+                timeset.value = val;
             } else if (e.target.id === 'image-back') {
                 setDisplay('block', 'none', 'none', 'none');
             } else if (e.target.className === "delete-rem-btn") {
@@ -57,14 +52,10 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (e.target.className === "edit-rem-btn") {
                 setDisplay('none', 'block', 'none', 'block');
                 const idOfEditTask = e.target.dataset.remid;
-                // console.log('=====')
-                // console.log(e.target)
-                // console.log(idOfEditTask)
-                // console.log('=====')
+
                 editSubmit.style.display = 'block';
                 editSubmit.dataset.id = idOfEditTask;
                 remindSubmit.style.display = 'none';
-
                 let task = document.getElementById('task')
                 let timePicker = document.getElementById('time')
                 browser.storage.local.get(null)
@@ -75,12 +66,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (e.target.id === 'edit-done') {
                 let task = document.getElementById('task')
                 let timeset = document.getElementById('time')
-                // console.log('--------')
-                // console.log(task.value)
-                // console.log(timeset.value)
-                // console.log('edit handle')
-                // console.log(editSubmit.dataset.id)
-                // console.log('--------')
                 handleEditRem(task.value, timeset.value, editSubmit.dataset.id)
 
             }
@@ -88,16 +73,33 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     async function handleEditRem(newTask, newTime, currId) {
-        const currObj = await browser.storage.local.get(null)
         await browser.storage.local.remove(currId);
         const obj = await browser.storage.local.get(null)
         // console.log(obj)
-        const {id,...newObj} = obj;
-        await browser.storage.local.set({ ...newObj, [id]: { rem: newTask, time: new Date(newTime), id: Number(id) },id:Number(id)+1 })
+        const { id, ...newObj } = obj;
+        const x = { rem: newTask, time: new Date(newTime), id: Number(id) };
+        await browser.storage.local.set({ ...newObj, [id]: x, id: Number(id) + 1 })
         const updatedObj = await browser.storage.local.get(null)
         setDisplay('none', 'none', 'block', 'block');
+        // clear previously set alarm:
+        let clearPromise = await browser.alarms.clear(`${currId}`)
+        if (clearPromise === true) {
+            console.log(`alarms of ${currId} successfully cleared`)
+            let timeSinceEpochMs = x.time.getTime()
+            browser.alarms.create(`${x.id}`, {
+                when: timeSinceEpochMs,
+            })
+        } else {
+            console.log(`alarms of ${currId} not cleared due to some error.`)
+            // likely error = this task is of past date
+            let timeSinceEpochMs = x.time.getTime()
+            browser.alarms.create(`${x.id}`, {
+                when: timeSinceEpochMs,
+            })
+        }
         handleSeeRems(updatedObj)
     }
+
     async function handleDeleteRem(x) {
         const obj = await browser.storage.local.get(null)
         delete obj[x]
@@ -117,21 +119,15 @@ document.addEventListener('DOMContentLoaded', () => {
         outerDiv.className = 'outer-div-rems'
         const seeRem = document.querySelector('#see-rem')
         let keys = Object.keys(obj).reverse()
-        console.log('%%%%%%')
-        console.log(obj)
-        console.log(keys)
-        console.log('%%%%%%')
         for (const prop of keys) {
             if (prop === 'count' || prop === 'id') { } else {
                 const i = document.createElement('div')
                 i.className = 'each-rem'
                 const pTask = document.createElement('p')
+                pTask.className = 'each-task';
                 // del btn start
                 const delBtn = document.createElement('button')
                 delBtn.className = 'delete-rem-btn'
-                console.log('************')
-                console.log(prop)
-                console.log('************')
                 delBtn.setAttribute('data-remid', prop)
                 delBtn.innerHTML = 'Delete'
                 // btn end
@@ -139,19 +135,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 const editBtn = document.createElement('button')
                 editBtn.className = 'edit-rem-btn'
 
-                console.log('00000000000000')
-                console.log(prop)
-                console.log('00000000000000')
                 editBtn.setAttribute('data-remid', prop)
                 editBtn.innerHTML = 'Edit'
                 // edit button end
                 const pTime = document.createElement('p')
-                pTask.innerHTML = `<b>Task: </b> ${obj[prop]['rem']}`;
-                pTime.innerHTML = `<b>Time: </b> ${obj[prop]['time'].toDateString()} (${obj[prop]['time'].toLocaleTimeString()})`
+                const pBtnWrapper = document.createElement('p')
+                pTask.innerHTML = `<b>Task: </b><br> ${obj[prop]['rem']}`;
+                pTime.innerHTML = `<b>Time: </b><br> ${obj[prop]['time'].toDateString()} (${obj[prop]['time'].toLocaleTimeString()})`
                 i.appendChild(pTask)
                 i.appendChild(pTime)
-                i.appendChild(editBtn)
-                i.appendChild(delBtn)
+                i.appendChild(pBtnWrapper)
+                pBtnWrapper.appendChild(editBtn)
+                pBtnWrapper.appendChild(delBtn)
                 outerDiv.appendChild(i)
             }
         }
@@ -161,15 +156,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let obj = await browser.storage.local.get(null)
         let x = { rem: task, time: new Date(timeset) }
         let idX = 0;
-        console.log('===xxxxxxxxxxxx')
-        console.log(obj)
-        console.log('===xxxxxxxxxxxx')
         if (!obj.hasOwnProperty('count')) {
             idX = 1;
             x.id = idX;
-            console.log('xxxxxxxxxxxx')
-            console.log(x)
-            console.log('xxxxxxxxxxxx')
             await browser.storage.local.set({ count: 1, id: 2, 1: x })
         } else {
             const { count, id, ...newObj } = obj;
@@ -177,9 +166,6 @@ document.addEventListener('DOMContentLoaded', () => {
             idX = newId;
             await browser.storage.local.clear()
             x.id = idX;
-            console.log('--count-exists----xxxxxxxxxxxx')
-            console.log(x)
-            console.log('--count-exists----xxxxxxxxxxxx')
             await browser.storage.local.set({ ...newObj, [newId]: x, count: obj.count + 1, id: obj.id + 1 })
         }
         // for notification part
@@ -199,29 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
         backBtn.style.display = backBtnVal
     }
 
-
-    // function reportExecuteScriptError(error) {
-    //     document.querySelector("#popup-content").classList.add("hidden");
-    //     document.querySelector("#error-content").classList.remove("hidden");
-    //     console.error(`Failed to execute task-remainder content script: ${error.message}`);
-    // }
-    // browser.tabs
-    //     .executeScript({ file: "/content_scripts/remind.js" })
-    //     .then(listenForClicks)
-    //     .catch(reportExecuteScriptError);
     listenForClicks()
 
 })
-// ,
-//     "content_scripts": [
-//         {
-//             "matches": [
-//                "<all_urls>" 
-//             ],
-//             "js": [
-//                 "content_scripts/remind.js"
-//             ]
-//         }
-//     ]
-
 

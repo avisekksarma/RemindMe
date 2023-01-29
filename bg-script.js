@@ -39,16 +39,23 @@ browser.alarms.onAlarm.addListener(async function (alarmInfo) {
     let ID = obj[alarmInfo.name].id;
     // createnotification returns a promise
     // await createNotification(task);
-    let taskURL = browser.runtime.getURL("task.html")+"?task=" + task+"&id=" + ID;
-    browser.tabs.create({url:taskURL})
+    let taskURL = browser.runtime.getURL("task.html") + "?task=" + task + "&id=" + ID;
+    browser.tabs.create({ url: taskURL })
 });
 
-browser.runtime.onMessage.addListener(async function(data, sender){
-    if (data.case==='doneBtn'){
+browser.runtime.onMessage.addListener(async function (data, sender) {
+    if (data.case === 'doneBtn') {
         // handle clicking doneBtn on extension page
         // i.e. delete that remainder
         browser.storage.local.remove(data.id)
         console.log('removed')
+    } else if (data.case === 'snoozeBtn') {
+        await browser.alarms.clear(data.id)
+        let minutes = 1;
+        let timeSinceEpochMs = Date.now()+minutes*60*1000;
+        browser.alarms.create(`${data.id}`, {
+            when: timeSinceEpochMs,
+        })
     }
 })
 
