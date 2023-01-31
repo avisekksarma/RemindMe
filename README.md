@@ -7,6 +7,7 @@ A browser extension to remind tasks to you on a scheduled time.
 Very **handy** for anyone to keep tasks aside while working on something.
 
 Currently only supported on firefox: Download [here](https://addons.mozilla.org/en-US/firefox/addon/remindmetask/)
+
 Since chromium based browsers and firefox have some compatibility issues, I will look on to that in version 2 maybe.
 
 ##### Note: 
