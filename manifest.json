@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "task-remainder",
-    "version": "1.0",
+    "version": "2.0",
     "description": "An extension to remind task in the set time",
     "icons": {
         "48":"icons/48-bell.png"
